@@ -20,10 +20,40 @@ jobs:
       - coveralls/upload:
           coverage_file: coverage.out
           coverage_format: golang
-          flag_name: "go unit tests"
+          flag_name: "go-tests"
+
+  python_test:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - run:
+          name: Install Python dependencies
+          command: pip install -r python_code/requirements.txt
+      - run:
+          name: Run Python tests and generate coverage report
+          command: pytest --cov=python_code --cov-report=xml:coverage.xml python_code/
+      - coveralls/upload:
+          parallel: true
+          coverage_file: coverage.xml
+          coverage_format: cobertura
+          flag_name: "python-tests"
+
+  notify_coveralls_finished:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - coveralls/upload:
+          parallel_finished: true
+          flag_name: "all-tests"
 
 workflows:
   test:
     when: << pipeline.parameters.run_go_test >>
     jobs:
       - go_test
+      - python_test
+      - notify_coveralls_finished:
+          requires:
+            - go_test
+            - python_test
