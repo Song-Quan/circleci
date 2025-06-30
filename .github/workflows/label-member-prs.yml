@@ -7,6 +7,8 @@ on:
 jobs:
   label-pr:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Check author association and add label
         if: |
@@ -20,7 +22,7 @@ jobs:
             const prNumber = context.issue.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const label = 'safe-to-test';
+            const label = 'run-ci';
 
             console.log(`PR author is a member. Adding '${label}' label to PR #${prNumber}.`);
 
