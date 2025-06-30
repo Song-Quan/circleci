@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  coveralls: coveralls/coveralls@2.2.5
+
 parameters:
   run_go_test:
     type: boolean
@@ -12,8 +15,12 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Run Go tests
-          command: go test ./...
+          name: Run Go tests and generate coverage report
+          command: go test -v -cover -race -coverprofile=coverage.out ./...
+      - coveralls/upload:
+          coverage_file: coverage.out
+          coverage_format: golang
+          flag_name: "go unit tests"
 
 workflows:
   test:
