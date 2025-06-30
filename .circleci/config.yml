@@ -19,13 +19,31 @@ parameters:
     type: string
     default: ""
 
+jobs:
+  print-params:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Print GHA Parameters
+          command: |
+            echo "Pipeline triggered by GHA."
+            echo "GHA_Actor: << pipeline.parameters.GHA_Actor >>"
+            echo "GHA_Event: << pipeline.parameters.GHA_Event >>"
+            echo "GHA_Action: << pipeline.parameters.GHA_Action >>"
+            echo "GHA_Meta: << pipeline.parameters.GHA_Meta >>"
+
 workflows:
+  debug-workflow:
+    when: << pipeline.parameters.GHA_Actor >>
+    jobs:
+      - print-params
+
   setup:
     when:
-      and:
-        - not: << pipeline.parameters.GHA_Action >>
-        - not: << pipeline.parameters.GHA_Meta >>
-        - not: << pipeline.parameters.GHA_Event >>
+      matches:
+        pattern: "^(labeled|opened|synchronize|reopened)$"
+        value: << pipeline.parameters.GHA_Action >>
     jobs:
       - path-filtering/filter:
           name: check-paths
