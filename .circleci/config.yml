@@ -41,9 +41,7 @@ workflows:
 
   setup:
     when:
-      matches:
-        pattern: "^(labeled|opened|synchronize|reopened)$"
-        value: << pipeline.parameters.GHA_Action >>
+      equal: [ "run-unit-test", << pipeline.parameters.GHA_Meta >> ]
     jobs:
       - path-filtering/filter:
           name: check-paths
