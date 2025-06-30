@@ -14,5 +14,5 @@ func Multiply(a, b int) int {
 }
 
 func Test(a, b int) int {
-	return Add(a, b)
+	return Sub(a, b)
 }
