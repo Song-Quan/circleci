@@ -9,6 +9,7 @@ func Sub(a, b int) int {
 	return a - b
 }
 
+// test
 func Multiply(a, b int) int {
 	return a * b
 }
