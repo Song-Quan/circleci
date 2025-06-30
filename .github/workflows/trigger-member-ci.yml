@@ -13,6 +13,8 @@ jobs:
       github.event.pull_request.author_association == 'COLLABORATOR'
     steps:
       - name: Trigger CircleCI for Member
-        uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.2.0
+        uses: CircleCI-Public/trigger-circleci-pipeline-action@a81cd720792a6088debd7f182b552845abb86f1b
+        with:
+          GHA_Meta: "run-unit-test"
         env:
           CCI_TOKEN: ${{ secrets.CIRCLECI_API_TOKEN }}
