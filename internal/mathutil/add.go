@@ -12,3 +12,7 @@ func Sub(a, b int) int {
 func Multiply(a, b int) int {
 	return a * b
 }
+
+func Test(a, b int) int {
+	return Add(a, b)
+}
