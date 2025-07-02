@@ -1,0 +1,21 @@
+name: 'Trigger CI for Externals via Label'
+
+on:
+  pull_request_target:
+    types: [labeled]
+
+jobs:
+  trigger-circleci-on-label:
+    runs-on: ubuntu-latest
+    if: |
+      github.event.label.name == 'run-ci' &&
+      github.event.pull_request.author_association != 'MEMBER' &&
+      github.event.pull_request.author_association != 'OWNER' &&
+      github.event.pull_request.author_association != 'COLLABORATOR'
+    steps:
+      - name: Trigger CircleCI for External Contributor
+        uses: CircleCI-Public/trigger-circleci-pipeline-action@a81cd720792a6088debd7f182b552845abb86f1b
+        with:
+          GHA_Meta: "run-unit-test"
+        env:
+          CCI_TOKEN: ${{ secrets.CIRCLECI_API_TOKEN }}
