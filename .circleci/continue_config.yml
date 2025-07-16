@@ -80,8 +80,12 @@ jobs:
               -f context='ci/circleci: dynamic-tests'
 
 workflows:
-  test:
-    when: << pipeline.parameters.run_go_test >>
+  # This workflow runs for builds that ARE from a forked pull request
+  test_and_report:
+    when:
+      and:
+        - << pipeline.parameters.run_go_test >>
+        - << pipeline.parameters.is_fork_pr >>
     jobs:
       - go_test
       - python_test
@@ -89,10 +93,21 @@ workflows:
           requires:
             - go_test
             - python_test
-      - when:
-          condition: << pipeline.parameters.is_fork_pr >>
-          jobs:
-            - report_fork_pr_status:
-                context: github-creds
-                requires:
-                  - notify_coveralls_finished
+      - report_fork_pr_status:
+          context: github-creds
+          requires:
+            - notify_coveralls_finished
+
+  # This workflow runs for builds that ARE NOT from a forked pull request
+  test_only:
+    when:
+      and:
+        - << pipeline.parameters.run_go_test >>
+        - not: << pipeline.parameters.is_fork_pr >>
+    jobs:
+      - go_test
+      - python_test
+      - notify_coveralls_finished:
+          requires:
+            - go_test
+            - python_test
