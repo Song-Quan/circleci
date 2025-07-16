@@ -3,7 +3,7 @@ name: Trigger CircleCI for Forked PR
 on:
   # This event runs in the context of your main repository, so it can safely access secrets.
   pull_request_target:
-    types: [labeled]
+    types: [labeled, synchronize]
 
 jobs:
   trigger-circleci:
@@ -12,8 +12,11 @@ jobs:
     # 1. The PR is from a fork.
     # 2. The label that was just added is exactly "run-ci".
     if: |
-      github.event.pull_request.head.repo.full_name!= github.repository &&
-      github.event.label.name == 'run-ci'
+      github.event.pull_request.head.repo.full_name != github.repository &&
+      (
+        (github.event.action == 'labeled' && github.event.label.name == 'run-ci') ||
+        (github.event.action == 'synchronize' && contains(github.event.pull_request.labels.*.name, 'run-ci'))
+      )
     steps:
       - name: Trigger CircleCI Pipeline
         run: |
