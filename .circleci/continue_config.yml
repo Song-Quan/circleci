@@ -9,13 +9,6 @@ parameters:
   run_go_test:
     type: boolean
     default: false
-  # These are passed from the setup config, which got them from the API call
-  is_fork_pr:
-    type: boolean
-    default: false
-  head_sha:
-    type: string
-    default: ""
 
 jobs:
   go_test:
@@ -56,56 +49,11 @@ jobs:
           parallel_finished: true
           flag_name: "all-tests"
 
-  report_fork_pr_status:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - gh/setup # Authenticates the GitHub CLI
-      - run:
-          name: Report Success to GitHub
-          when: on_success
-          command: |
-            # Use the head_sha passed from the GitHub Action to target the correct commit
-            gh api repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/statuses/<< pipeline.parameters.head_sha >> \
-              -f state='success' \
-              -f description='CircleCI tests passed!' \
-              -f context='ci/circleci: dynamic-tests'
-      - run:
-          name: Report Failure to GitHub
-          when: on_fail
-          command: |
-            gh api repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/statuses/<< pipeline.parameters.head_sha >> \
-              -f state='failure' \
-              -f description='CircleCI tests failed!' \
-              -f context='ci/circleci: dynamic-tests'
-
 workflows:
-  # This workflow runs for builds that ARE from a forked pull request
-  test_and_report:
+  test:
     when:
       and:
         - << pipeline.parameters.run_go_test >>
-        - << pipeline.parameters.is_fork_pr >>
-    jobs:
-      - go_test
-      - python_test
-      - notify_coveralls_finished:
-          requires:
-            - go_test
-            - python_test
-      - report_fork_pr_status:
-          context: github-creds
-          requires:
-            - go_test
-            - python_test
-          when: always()
-
-  # This workflow runs for builds that ARE NOT from a forked pull request
-  test_only:
-    when:
-      and:
-        - << pipeline.parameters.run_go_test >>
-        - not: << pipeline.parameters.is_fork_pr >>
     jobs:
       - go_test
       - python_test
