@@ -11,6 +11,7 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
+      - checkout
       - gh/setup
       - run:
           name: Check PR conditions before proceeding
