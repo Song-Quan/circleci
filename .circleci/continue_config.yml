@@ -2,11 +2,20 @@ version: 2.1
 
 orbs:
   coveralls: coveralls/coveralls@2.2.5
+  gh: circleci/github-cli@2.7.0
+
 
 parameters:
   run_go_test:
     type: boolean
     default: false
+  # These are passed from the setup config, which got them from the API call
+  is_fork_pr:
+    type: boolean
+    default: false
+  head_sha:
+    type: string
+    default: ""
 
 jobs:
   go_test:
@@ -47,6 +56,29 @@ jobs:
           parallel_finished: true
           flag_name: "all-tests"
 
+  report_fork_pr_status:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - gh/setup # Authenticates the GitHub CLI
+      - run:
+          name: Report Success to GitHub
+          when: on_success
+          command: |
+            # Use the head_sha passed from the GitHub Action to target the correct commit
+            gh api repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/statuses/<< pipeline.parameters.head_sha >> \
+              -f state='success' \
+              -f description='CircleCI tests passed!' \
+              -f context='ci/circleci: dynamic-tests'
+      - run:
+          name: Report Failure to GitHub
+          when: on_fail
+          command: |
+            gh api repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/statuses/<< pipeline.parameters.head_sha >> \
+              -f state='failure' \
+              -f description='CircleCI tests failed!' \
+              -f context='ci/circleci: dynamic-tests'
+
 workflows:
   test:
     when: << pipeline.parameters.run_go_test >>
@@ -57,3 +89,10 @@ workflows:
           requires:
             - go_test
             - python_test
+      - when:
+          condition: << pipeline.parameters.is_fork_pr >>
+          jobs:
+            - report_fork_pr_status:
+                context: github-creds
+                requires:
+                  - notify_coveralls_finished

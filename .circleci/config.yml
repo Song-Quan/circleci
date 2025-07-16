@@ -2,64 +2,22 @@ version: 2.1
 
 setup: true
 
+parameters:
+  is_fork_pr:
+    type: boolean
+    default: false
+  head_sha:
+    type: string
+    default: ""
+
 orbs:
   path-filtering: circleci/path-filtering@2.0.1
-  gh: circleci/github-cli@2.7.0
-
-jobs:
-  gatekeeper-job:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - gh/setup
-      - run:
-          name: Check PR conditions before proceeding
-          command: |
-            # 1. 检查 CIRCLE_PULL_REQUEST 是否为空，如果为空，则不是PR构建，直接停止
-            # CIRCLE_PULL_REQUEST 在非PR构建时通常为空或者未设置
-            if [ -z "$CIRCLE_PULL_REQUEST" ]; then # <-- 修正点：添加了条件判断
-              echo "This is not a Pull Request build. Halting workflow."
-              circleci-agent step halt
-              exit 0
-            fi
-
-            # 2. 从 CIRCLE_PULL_REQUEST URL 中提取 PR 编号
-            # 例如：CIRCLE_PULL_REQUEST = https://github.com/org/repo/pull/123
-            PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}
-            echo "Detected Pull Request #$PR_NUMBER"
-
-            # 3. 检查 CIRCLE_PR_USERNAME 是否为空来判断是否为 Fork PR
-            # CIRCLE_PR_USERNAME 在来自Fork的PR中会被设置，在内部PR中为空
-            if [ -z "$CIRCLE_PR_USERNAME" ]; then # <-- 修正点：添加了条件判断
-              echo "This is a member PR. Proceeding with the build."
-              exit 0
-            # 如果该变量不为空，则是外部贡献者的Fork PR
-            else
-              echo "This is a forked PR from user '$CIRCLE_PR_USERNAME'. Checking for 'run-ci' label..."
-
-              # 使用提取出的PR编号检查标签
-              # 注意：这里 gh pr view 的 --jq 语法通常是 .labels[].name 或 .labels | map(.name)[]
-              # 单独的 .labels.name 如果标签是数组，可能需要调整
-              # 假设 .labels.name 适用于获取标签名称的列表
-              if gh pr view "$PR_NUMBER" --json labels --jq '.labels[].name' | grep -q '^run-ci$'; then
-                echo "Forked PR has the 'run-ci' label. Proceeding with the build."
-                exit 0
-              else
-                echo "Forked PR does not have the 'run-ci' label. Halting workflow."
-                circleci-agent step halt
-              fi
-            fi
 
 workflows:
   setup:
     jobs:
-      - gatekeeper-job:
-          context: github-creds
       - path-filtering/filter:
           name: check-paths
-          requires:
-            - gatekeeper-job
           mapping: .circleci/path-filtering/pipeline_parameters.txt
           base-revision: main
           config-path: .circleci/continue_config.yml

@@ -1,0 +1,37 @@
+name: Trigger CircleCI for Forked PR
+
+on:
+  # This event runs in the context of your main repository, so it can safely access secrets.
+  pull_request_target:
+    types: [labeled]
+
+jobs:
+  trigger-circleci:
+    runs-on: ubuntu-latest
+    # This job only runs under two conditions:
+    # 1. The PR is from a fork.
+    # 2. The label that was just added is exactly "run-ci".
+    if: |
+      github.event.pull_request.head.repo.full_name!= github.repository &&
+      github.event.label.name == 'run-ci'
+    steps:
+      - name: Trigger CircleCI Pipeline
+        run: |
+          echo "Forked PR #${{ github.event.pull_request.number }} has 'run-ci' label. Triggering CircleCI pipeline..."
+          
+          # We use curl to directly call the CircleCI API v2.
+          # This is more flexible than the official trigger action.
+          curl -X POST \
+            --url "https://circleci.com/api/v2/project/gh/Song-Quan/circleci/pipeline/run" \
+            --header "Content-Type: application/json" \
+            --header "Circle-Token: ${{ secrets.CIRCLECI_API_TOKEN }}" \
+            --data @- <<'EOF'
+          {
+            "definition_id": 219c1179-8254-4f27-8da2-1c3374e28029,
+            "branch": "pull/${{ github.event.pull_request.number }}/head",
+            "parameters": {
+              "is_fork_pr": true,
+              "head_sha": "${{ github.event.pull_request.head.sha }}"
+            }
+          }
+          EOF
