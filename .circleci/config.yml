@@ -6,7 +6,8 @@ orbs:
   path-filtering: circleci/path-filtering@2.0.1
   gh: circleci/github-cli@2.7.0
 
-gatekeeper-job:
+jobs:
+  gatekeeper-job:
     docker:
       - image: cimg/base:stable
     steps:
