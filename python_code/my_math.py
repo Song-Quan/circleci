@@ -1,4 +1,4 @@
 def add(a, b):
     """This function adds two numbers."""
-    a = 2
+    a = 1
     return a + b
