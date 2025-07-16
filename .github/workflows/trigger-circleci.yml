@@ -25,4 +25,4 @@ jobs:
             --url "https://circleci.com/api/v2/project/gh/Song-Quan/circleci/pipeline/run" \
             --header "Content-Type: application/json" \
             --header "Circle-Token: ${{ secrets.CIRCLECI_API_TOKEN }}" \
-            --data '{"definition_id":"219c1179-8254-4f27-8da2-1c3374e28029","config":{"branch":"pull/${{ github.event.pull_request.number }}/head"},"checkout":{"branch":"pull/${{ github.event.pull_request.number }}/head"},"parameters": {"is_fork_pr": true,"head_sha": "${{ github.event.pull_request.head.sha }}"}}'
+            --data '{"definition_id":"219c1179-8254-4f27-8da2-1c3374e28029","config":{"branch":"main"},"checkout":{"branch":"pull/${{ github.event.pull_request.number }}/head"},"parameters": {"is_fork_pr": true,"head_sha": "${{ github.event.pull_request.head.sha }}"}}'

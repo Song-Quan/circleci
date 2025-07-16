@@ -96,7 +96,9 @@ workflows:
       - report_fork_pr_status:
           context: github-creds
           requires:
-            - notify_coveralls_finished
+            - go_test
+            - python_test
+          when: always()
 
   # This workflow runs for builds that ARE NOT from a forked pull request
   test_only:
