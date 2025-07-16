@@ -29,7 +29,7 @@ jobs:
           {
             "definition_id": 219c1179-8254-4f27-8da2-1c3374e28029,
             "config": {
-              "branch": "pull/${{ github.event.pull_request.number }}/head",
+              "branch": "pull/${{ github.event.pull_request.number }}/head"
             },
             "parameters": {
               "is_fork_pr": true,
