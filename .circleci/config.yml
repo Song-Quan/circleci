@@ -16,11 +16,11 @@ jobs:
       - run:
           name: Check PR conditions before proceeding
           command: |
-            # 获取PR是否来自Fork的信息。--jq 是 gh cli 的推荐用法
-            IS_FORKED_PR=$(gh pr view << pipeline.event.github.pull_request.number >> --json isCrossRepository --jq.isCrossRepository)
+            IS_FORKED_PR=$(gh pr view << pipeline.event.github.pull_request.number >> --json isCrossRepository -q.isCrossRepository)
 
             # 检查是否是内部成员的PR (isCrossRepository 的值为 false)
-            if; then
+            # 如果 IS_FORKED_PR 是 "false" (注意 gh cli 输出的布尔值是小写字符串)
+            if [ "$IS_FORKED_PR" = "false" ]; then
               echo "This is a member PR. Proceeding with the build."
               exit 0
             # 否则，这就是一个来自Fork的PR
@@ -28,7 +28,7 @@ jobs:
               echo "This is a forked PR. Checking for 'run-ci' label..."
               # 直接在if条件中检查 'run-ci' 标签是否存在
               # gh pr view... | grep -q... 如果找到匹配项，命令会成功(退出码为0)
-              if gh pr view << pipeline.event.github.pull_request.number >> --json labels --jq '.labels.name' | grep -q '^run-ci$'; then
+              if gh pr view << pipeline.event.github.pull_request.number >> --json labels -q '.labels.name' | grep -q '^run-ci$'; then
                 echo "Forked PR has the 'run-ci' label. Proceeding with the build."
                 exit 0
               else
