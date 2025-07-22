@@ -20,3 +20,7 @@ func Divide(a, b int) int {
 func Divide1(a, b int) int {
 	return a / b
 }
+
+func Divide2(a, b int) int {
+	return a / b
+}
