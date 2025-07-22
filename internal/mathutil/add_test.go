@@ -17,3 +17,11 @@ func TestSub(t *testing.T) {
 		t.Errorf("Sub(2, 3) = %d; want %d", result, expected)
 	}
 }
+
+func TestDivide4(t *testing.T) {
+	result := Divide4(1, 1)
+	expected := 1
+	if result != expected {
+		t.Errorf("Divide4(1, 1) = %d; want %d", result, expected)
+	}
+}
