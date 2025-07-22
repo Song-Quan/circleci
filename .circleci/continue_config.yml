@@ -41,7 +41,7 @@ jobs:
                 coverage_file: coverage.lcov
                 coverage_format: lcov
                 flag_name: "go-tests"
-                parallel: true
+                # parallel: true
 
   python_test:
     docker:
@@ -66,7 +66,7 @@ jobs:
                 coverage_file: coverage.lcov
                 coverage_format: lcov
                 flag_name: "python-tests"
-                parallel: true
+                # parallel: true
 
   notify_coveralls_finished:
     docker:
@@ -85,7 +85,7 @@ workflows:
     jobs:
       - go_test
       - python_test
-      - notify_coveralls_finished:
-          requires:
-            - go_test
-            - python_test
+      # - notify_coveralls_finished:
+      #     requires:
+      #       - go_test
+      #       - python_test
