@@ -29,24 +29,11 @@ jobs:
             - run:
                 name: Run Go tests and generate coverage report
                 command: go test -v -cover -race -coverprofile=coverage.out ./...
-            - when:
-                condition:
-                  equal: [ main, << pipeline.git.branch >> ]
-                steps:
-                  - coveralls/upload:
-                      coverage_file: coverage.out
-                      coverage_format: golang
-                      flag_name: "go-tests"
-                      parallel: true
-            - unless:
-                condition:
-                  equal: [ main, << pipeline.git.branch >> ]
-                steps:
-                  - coveralls/upload:
-                      coverage_file: coverage.out
-                      coverage_format: golang
-                      flag_name: "go-tests"
-                      parallel: false
+            - coveralls/upload:
+                coverage_file: coverage.out
+                coverage_format: golang
+                flag_name: "go-tests"
+                parallel: true
 
   python_test:
     docker:
@@ -65,24 +52,11 @@ jobs:
             - run:
                 name: Run Python tests and generate coverage report
                 command: pytest --cov=python_code --cov-report=xml:coverage.xml python_code/
-            - when:
-                condition:
-                  equal: [ main, << pipeline.git.branch >> ]
-                steps:
-                  - coveralls/upload:
-                      coverage_file: coverage.xml
-                      coverage_format: cobertura
-                      flag_name: "python-tests"
-                      parallel: true
-            - unless:
-                condition:
-                  equal: [ main, << pipeline.git.branch >> ]
-                steps:
-                  - coveralls/upload:
-                      coverage_file: coverage.xml
-                      coverage_format: cobertura
-                      flag_name: "python-tests"
-                      parallel: false
+            - coveralls/upload:
+                coverage_file: coverage.xml
+                coverage_format: cobertura
+                flag_name: "python-tests"
+                parallel: true
 
   notify_coveralls_finished:
     docker:
