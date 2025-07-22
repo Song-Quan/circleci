@@ -1,9 +1,10 @@
+
+
 version: 2.1
 
 orbs:
   coveralls: coveralls/coveralls@2.2.5
   gh: circleci/github-cli@2.7.0
-
 
 parameters:
   run_go_test:
@@ -18,62 +19,74 @@ jobs:
     docker:
       - image: cimg/go:1.21
     steps:
-      - checkout
-      - run:
-          name: Run Go tests and generate coverage report
-          command: go test -v -cover -race -coverprofile=coverage.out ./...
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            or:
+              - << pipeline.parameters.run_go_test >>
+              - equal: [ main, << pipeline.git.branch >> ]
           steps:
-            - coveralls/upload:
-                name: "Upload Coverage (for main branch)"
-                coverage_filem: coverage.out
-                coverage_format: golang
-                flag_name: "go-tests"
-                parallel: true
-      - unless:
-          condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - coveralls/upload:
-                name: "Upload Coverage (for PR branch)"
-                coverage_file: coverage.out
-                coverage_format: golang
-                flag_name: "go-tests"
-                parallel: false
+            - checkout
+            - run:
+                name: Run Go tests and generate coverage report
+                command: go test -v -cover -race -coverprofile=coverage.out ./...
+            - when:
+                condition:
+                  equal: [ main, << pipeline.git.branch >> ]
+                steps:
+                  - coveralls/upload:
+                      name: "Upload Coverage (for main branch)"
+                      coverage_file: coverage.out
+                      coverage_format: golang
+                      flag_name: "go-tests"
+                      parallel: true
+            - unless:
+                condition:
+                  equal: [ main, << pipeline.git.branch >> ]
+                steps:
+                  - coveralls/upload:
+                      name: "Upload Coverage (for PR branch)"
+                      coverage_file: coverage.out
+                      coverage_format: golang
+                      flag_name: "go-tests"
+                      parallel: false
 
   python_test:
     docker:
       - image: cimg/python:3.11
     steps:
-      - checkout
-      - run:
-          name: Install Python dependencies
-          command: pip install -r python_code/requirements.txt
-      - run:
-          name: Run Python tests and generate coverage report
-          command: pytest --cov=python_code --cov-report=xml:coverage.xml python_code/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            or:
+              - << pipeline.parameters.run_py_test >>
+              - equal: [ main, << pipeline.git.branch >> ]
           steps:
-            - coveralls/upload:
-                name: "Upload Coverage (for main branch)"
-                coverage_file: coverage.xml
-                coverage_format: cobertura
-                flag_name: "python-tests"
-                parallel: true
-      - unless:
-          condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - coveralls/upload:
-                name: "Upload Coverage (for PR branch)"
-                coverage_file: coverage.xml
-                coverage_format: cobertura
-                flag_name: "python-tests"
-                parallel: false
+            - checkout
+            - run:
+                name: Install Python dependencies
+                command: pip install -r python_code/requirements.txt
+            - run:
+                name: Run Python tests and generate coverage report
+                command: pytest --cov=python_code --cov-report=xml:coverage.xml python_code/
+            - when:
+                condition:
+                  equal: [ main, << pipeline.git.branch >> ]
+                steps:
+                  - coveralls/upload:
+                      name: "Upload Coverage (for main branch)"
+                      coverage_file: coverage.xml
+                      coverage_format: cobertura
+                      flag_name: "python-tests"
+                      parallel: true
+            - unless:
+                condition:
+                  equal: [ main, << pipeline.git.branch >> ]
+                steps:
+                  - coveralls/upload:
+                      name: "Upload Coverage (for PR branch)"
+                      coverage_file: coverage.xml
+                      coverage_format: cobertura
+                      flag_name: "python-tests"
+                      parallel: false
 
   notify_coveralls_finished:
     docker:
@@ -90,22 +103,9 @@ workflows:
         - << pipeline.parameters.run_py_test >>
         - equal: [ main, << pipeline.git.branch >> ]
     jobs:
-      - go_test:
-          when:
-            or:
-              - << pipeline.parameters.run_go_test >>
-              - equal: [ main, << pipeline.git.branch >> ]
-      - python_test:
-          when:
-            or:
-              - << pipeline.parameters.run_py_test >>
-              - equal: [ main, << pipeline.git.branch >> ]
+      - go_test
+      - python_test
       - notify_coveralls_finished:
-          when:
-            or:
-              - << pipeline.parameters.run_go_test >>
-              - << pipeline.parameters.run_py_test >>
-              - equal: [ main, << pipeline.git.branch >> ]
           requires:
             - go_test
             - python_test
