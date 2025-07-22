@@ -1,13 +1,10 @@
-from my_math import add
+from .my_math import add
 
-def test_add_positive_numbers():
-    """Tests adding two positive numbers."""
+def test_add():
+    """Tests the add function."""
+    # 测试正数相加
     assert add(2, 3) == 5
-
-def test_add_negative_numbers():
-    """Tests adding two negative numbers."""
-    assert add(-2, -3) == -5
-
-def test_add_mixed_numbers():
-    """Tests adding a positive and a negative number."""
+    # 测试负数相加
+    assert add(-1, -1) == -2
+    # 测试正负数相加
     assert add(5, -3) == 2
