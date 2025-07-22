@@ -24,3 +24,7 @@ func Divide1(a, b int) int {
 func Divide2(a, b int) int {
 	return a / b
 }
+
+func Divide3(a, b int) int {
+	return a / b
+}
