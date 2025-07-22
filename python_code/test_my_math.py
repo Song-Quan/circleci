@@ -1,4 +1,4 @@
-from my_math import add
+from my_math import add, sub
 
 def test_add_positive_numbers():
     """Tests adding two positive numbers."""
@@ -11,3 +11,6 @@ def test_add_negative_numbers():
 def test_add_mixed_numbers():
     """Tests adding a positive and a negative number."""
     assert add(5, -3) == 2
+
+def test_sub_mixed_numbers():
+    assert sub(5, -3) == 8
