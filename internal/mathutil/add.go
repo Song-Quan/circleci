@@ -16,3 +16,7 @@ func Multiply(a, b int) int {
 func Divide(a, b int) int {
 	return a / b
 }
+
+func AddSub(a, b, c int) int {
+	return a + b - c
+}
