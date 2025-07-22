@@ -19,6 +19,7 @@ jobs:
     docker:
       - image: cimg/go:1.21
     steps:
+      - run: echo "Preparing to run Go tests."
       - when:
           condition: << pipeline.parameters.run_go_test >>
           # condition:
@@ -46,6 +47,7 @@ jobs:
     docker:
       - image: cimg/python:3.11
     steps:
+      - run: echo "Preparing to run Py tests."
       - when:
           condition: << pipeline.parameters.run_py_test >>
           # condition:
