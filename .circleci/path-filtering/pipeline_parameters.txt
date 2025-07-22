@@ -2,3 +2,5 @@ internal/.*\.go run_go_test true
 main\.go run_go_test true
 go\.mod run_go_test true
 python_code/.*\.py run_py_test true
+\.circleci/path-filtering/.* run_go_test true
+\.circleci/path-filtering/.* run_py_test true

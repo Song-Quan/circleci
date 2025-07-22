@@ -20,10 +20,11 @@ jobs:
       - image: cimg/go:1.21
     steps:
       - when:
-          condition:
-            or:
-              - << pipeline.parameters.run_go_test >>
-              - equal: [ main, << pipeline.git.branch >> ]
+          condition: << pipeline.parameters.run_go_test >>
+          # condition:
+          #   or:
+          #     - << pipeline.parameters.run_go_test >>
+          #     - equal: [ main, << pipeline.git.branch >> ]
           steps:
             - checkout
             - run:
@@ -46,10 +47,11 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - when:
-          condition:
-            or:
-              - << pipeline.parameters.run_py_test >>
-              - equal: [ main, << pipeline.git.branch >> ]
+          condition: << pipeline.parameters.run_py_test >>
+          # condition:
+          #   or:
+          #     - << pipeline.parameters.run_py_test >>
+          #     - equal: [ main, << pipeline.git.branch >> ]
           steps:
             - checkout
             - run:
@@ -77,7 +79,7 @@ workflows:
       or:
         - << pipeline.parameters.run_go_test >>
         - << pipeline.parameters.run_py_test >>
-        - equal: [ main, << pipeline.git.branch >> ]
+        # - equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - go_test
       - python_test
