@@ -53,7 +53,7 @@ jobs:
           parallel_finished: true
 
 workflows:
-  ut:
+  all_test:
     when:
       or:
         - << pipeline.parameters.run_go_test >>
@@ -73,8 +73,8 @@ workflows:
       - notify_coveralls_finished:
           when:
             or:
-              - << pipeline.parameters.run_go_ut >>
-              - << pipeline.parameters.run_py_ut >>
+              - << pipeline.parameters.run_go_test >>
+              - << pipeline.parameters.run_py_test >>
               - equal: [ main, << pipeline.git.branch >> ]
           requires:
             - go_test
