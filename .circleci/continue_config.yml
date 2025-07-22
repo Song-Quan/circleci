@@ -34,7 +34,6 @@ jobs:
                   equal: [ main, << pipeline.git.branch >> ]
                 steps:
                   - coveralls/upload:
-                      name: "Upload Coverage (for main branch)"
                       coverage_file: coverage.out
                       coverage_format: golang
                       flag_name: "go-tests"
@@ -44,7 +43,6 @@ jobs:
                   equal: [ main, << pipeline.git.branch >> ]
                 steps:
                   - coveralls/upload:
-                      name: "Upload Coverage (for PR branch)"
                       coverage_file: coverage.out
                       coverage_format: golang
                       flag_name: "go-tests"
@@ -72,7 +70,6 @@ jobs:
                   equal: [ main, << pipeline.git.branch >> ]
                 steps:
                   - coveralls/upload:
-                      name: "Upload Coverage (for main branch)"
                       coverage_file: coverage.xml
                       coverage_format: cobertura
                       flag_name: "python-tests"
@@ -82,7 +79,6 @@ jobs:
                   equal: [ main, << pipeline.git.branch >> ]
                 steps:
                   - coveralls/upload:
-                      name: "Upload Coverage (for PR branch)"
                       coverage_file: coverage.xml
                       coverage_format: cobertura
                       flag_name: "python-tests"
