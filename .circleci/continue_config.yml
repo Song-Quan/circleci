@@ -27,11 +27,32 @@ jobs:
           steps:
             - checkout
             - run:
-                name: Run Go tests and generate coverage report
-                command: go test -v -cover -race -coverprofile=coverage.out ./...
+                name: Install gcov2lcov
+                command: |
+                  go install github.com/jandelgado/gcov2lcov@latest
+                  which gcov2lcov || { echo "gcov2lcov not installed!"; exit 1; }
+
+            - run:
+                name: Run Go tests and generate coverage.out
+                command: |
+                  go test -coverprofile=coverage.out ./...
+                  if [ ! -s coverage.out ]; then
+                    echo "ERROR: coverage.out not generated or empty!"
+                    exit 1
+                  fi
+            - run:
+                name: Convert Go coverage.out to LCOV format
+                command: |
+                  GOROOT=$(go env GOROOT) gcov2lcov -infile=coverage.out -outfile=coverage.lcov
+                  if [ ! -s coverage.lcov ]; then
+                    echo "ERROR: coverage.lcov not created!"
+                    exit 1
+                  fi
+                  echo "✅ LCOV file created:"
+                  head -n 20 coverage.lcov
             - coveralls/upload:
-                coverage_file: coverage.out
-                coverage_format: golang
+                coverage_file: coverage.lcov
+                coverage_format: lcov
                 compare_ref: main
                 # flag_name: "go-tests"
                 # parallel: true
