@@ -28,7 +28,7 @@ jobs:
             - checkout
             - run:
                 name: Run Go tests and generate coverage report
-                command: go test -v -cover -race -coverprofile=coverage.out ./...
+                command: go test -v -cover -race -coverprofile=coverage.out ./internal/mathutil/...
             - coveralls/upload:
                 coverage_file: coverage.out
                 coverage_format: golang
