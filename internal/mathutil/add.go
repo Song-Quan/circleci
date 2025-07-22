@@ -17,18 +17,6 @@ func Divide(a, b int) int {
 	return a / b
 }
 
-func Divide1(a, b int) int {
-	return a / b
-}
-
-func Divide2(a, b int) int {
-	return a / b
-}
-
-func Divide3(a, b int) int {
-	return a / b
-}
-
-func Divide4(a, b int) int {
-	return a / b
+func AddSub(a, b, c int) int {
+	return a + b - c
 }
