@@ -1,4 +1,4 @@
-from my_math import add
+from .my_math import add
 
 def test_add():
     """Tests the add function."""
