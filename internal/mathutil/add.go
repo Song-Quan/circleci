@@ -28,3 +28,7 @@ func Divide2(a, b int) int {
 func Divide3(a, b int) int {
 	return a / b
 }
+
+func Divide4(a, b int) int {
+	return a / b
+}
