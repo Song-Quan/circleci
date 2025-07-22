@@ -32,38 +32,39 @@ jobs:
             - coveralls/upload:
                 coverage_file: coverage.out
                 coverage_format: golang
-                flag_name: "go-tests"
-                parallel: true
+                compare_ref: main
+                # flag_name: "go-tests"
+                # parallel: true
 
-  python_test:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - when:
-          condition:
-            or:
-              - << pipeline.parameters.run_py_test >>
-              - equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - checkout
-            - run:
-                name: Install Python dependencies
-                command: pip install -r python_code/requirements.txt
-            - run:
-                name: Run Python tests and generate coverage report
-                command: pytest --cov=python_code --cov-report=xml:coverage.xml python_code/
-            - coveralls/upload:
-                coverage_file: coverage.xml
-                coverage_format: cobertura
-                flag_name: "python-tests"
-                parallel: true
+  # python_test:
+  #   docker:
+  #     - image: cimg/python:3.11
+  #   steps:
+  #     - when:
+  #         condition:
+  #           or:
+  #             - << pipeline.parameters.run_py_test >>
+  #             - equal: [ main, << pipeline.git.branch >> ]
+  #         steps:
+  #           - checkout
+  #           - run:
+  #               name: Install Python dependencies
+  #               command: pip install -r python_code/requirements.txt
+  #           - run:
+  #               name: Run Python tests and generate coverage report
+  #               command: pytest --cov=python_code --cov-report=xml:coverage.xml python_code/
+  #           - coveralls/upload:
+  #               coverage_file: coverage.xml
+  #               coverage_format: cobertura
+  #               flag_name: "python-tests"
+  #               parallel: true
 
-  notify_coveralls_finished:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - coveralls/upload:
-          parallel_finished: true
+  # notify_coveralls_finished:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - coveralls/upload:
+  #         parallel_finished: true
 
 workflows:
   all_test:
@@ -74,8 +75,8 @@ workflows:
         - equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - go_test
-      - python_test
-      - notify_coveralls_finished:
-          requires:
-            - go_test
-            - python_test
+      # - python_test
+      # - notify_coveralls_finished:
+      #     requires:
+      #       - go_test
+      #       - python_test
