@@ -2,14 +2,6 @@ version: 2.1
 
 setup: true
 
-parameters:
-  is_fork_pr:
-    type: boolean
-    default: false
-  head_sha:
-    type: string
-    default: ""
-
 orbs:
   path-filtering: circleci/path-filtering@2.0.1
 

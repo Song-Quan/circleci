@@ -9,6 +9,9 @@ parameters:
   run_go_test:
     type: boolean
     default: false
+  run_py_test:
+    type: boolean
+    default: false
 
 jobs:
   go_test:
@@ -20,6 +23,7 @@ jobs:
           name: Run Go tests and generate coverage report
           command: go test -v -cover -race -coverprofile=coverage.out ./...
       - coveralls/upload:
+          parallel: << pipeline.git.branch == 'main' >>
           coverage_file: coverage.out
           coverage_format: golang
           flag_name: "go-tests"
@@ -36,7 +40,7 @@ jobs:
           name: Run Python tests and generate coverage report
           command: pytest --cov=python_code --cov-report=xml:coverage.xml python_code/
       - coveralls/upload:
-          parallel: true
+          parallel: << pipeline.git.branch == 'main' >>
           coverage_file: coverage.xml
           coverage_format: cobertura
           flag_name: "python-tests"
@@ -47,17 +51,31 @@ jobs:
     steps:
       - coveralls/upload:
           parallel_finished: true
-          flag_name: "all-tests"
 
 workflows:
-  test:
+  ut:
     when:
-      and:
+      or:
         - << pipeline.parameters.run_go_test >>
+        - << pipeline.parameters.run_py_test >>
+        - equal: [ main, << pipeline.git.branch >> ]
     jobs:
-      - go_test
-      - python_test
+      - go_test:
+          when:
+            or:
+              - << pipeline.parameters.run_go_test >>
+              - equal: [ main, << pipeline.git.branch >> ]
+      - python_test:
+          when:
+            or:
+              - << pipeline.parameters.run_py_test >>
+              - equal: [ main, << pipeline.git.branch >> ]
       - notify_coveralls_finished:
+          when:
+            or:
+              - << pipeline.parameters.run_go_ut >>
+              - << pipeline.parameters.run_py_ut >>
+              - equal: [ main, << pipeline.git.branch >> ]
           requires:
             - go_test
             - python_test
