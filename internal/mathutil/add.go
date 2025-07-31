@@ -36,3 +36,7 @@ func Divide4(a, b int) int {
 func Divide5(a, b int) int {
 	return a / b
 }
+
+func Divide6(a, b int) int {
+	return a / b
+}
