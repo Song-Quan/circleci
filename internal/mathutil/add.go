@@ -40,3 +40,7 @@ func Divide5(a, b int) int {
 func Divide6(a, b int) int {
 	return a / b
 }
+
+func Divide7(a, b int) int {
+	return a / b
+}
