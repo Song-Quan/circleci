@@ -1,4 +1,4 @@
-name: Trigger CircleCI for Forked PR
+name: Trigger CircleCI Unit Test for Forked PR
 
 on:
   # This event runs in the context of your main repository, so it can safely access secrets.

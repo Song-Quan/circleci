@@ -1,18 +1,7 @@
-
-
 version: 2.1
 
 orbs:
   coveralls: coveralls/coveralls@2.2.5
-  gh: circleci/github-cli@2.7.0
-
-parameters:
-  run_go_test:
-    type: boolean
-    default: false
-  run_py_test:
-    type: boolean
-    default: false
 
 jobs:
   go_test:
@@ -22,10 +11,6 @@ jobs:
       - run: echo "Preparing to run Go tests."
       - when:
           condition: << pipeline.parameters.run_go_test >>
-          # condition:
-          #   or:
-          #     - << pipeline.parameters.run_go_test >>
-          #     - equal: [ main, << pipeline.git.branch >> ]
           steps:
             - checkout
             - run:
@@ -41,7 +26,6 @@ jobs:
                 coverage_file: coverage.lcov
                 coverage_format: lcov
                 flag_name: "go-tests"
-                # parallel: true
 
   python_test:
     docker:
@@ -50,10 +34,6 @@ jobs:
       - run: echo "Preparing to run Py tests."
       - when:
           condition: << pipeline.parameters.run_py_test >>
-          # condition:
-          #   or:
-          #     - << pipeline.parameters.run_py_test >>
-          #     - equal: [ main, << pipeline.git.branch >> ]
           steps:
             - checkout
             - run:
@@ -66,36 +46,14 @@ jobs:
                 coverage_file: coverage.lcov
                 coverage_format: lcov
                 flag_name: "python-tests"
-                # parallel: true
-
-  notify_coveralls_finished:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - coveralls/upload:
-          parallel_finished: true
 
 workflows:
-  # all_test:
-  #   when:
-  #     or:
-  #       - << pipeline.parameters.run_go_test >>
-  #       - << pipeline.parameters.run_py_test >>
-  #       # - equal: [ main, << pipeline.git.branch >> ]
-  #   jobs:
-  #     - go_test
-  #     - python_test
-  #     # - notify_coveralls_finished:
-  #     #     requires:
-  #     #       - go_test
-  #     #       - python_test
-
-  go_ut:
-    when: << pipeline.parameters.run_go_test >>
+  all_cov:
+    # when:
+    #   or:
+    #     - << pipeline.parameters.run_go_test >>
+    #     - << pipeline.parameters.run_py_test >>
+    #     # - equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - go_test
-
-  py_ut:
-    when: << pipeline.parameters.run_py_test >>
-    jobs:
       - python_test

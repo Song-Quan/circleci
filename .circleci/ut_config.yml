@@ -1,0 +1,85 @@
+version: 2.1
+
+orbs:
+  coveralls: coveralls/coveralls@2.2.5
+  gh: circleci/github-cli@2.7.0
+
+parameters:
+  run_go_test:
+    type: boolean
+    default: false
+  run_py_test:
+    type: boolean
+    default: false
+
+jobs:
+  go_test:
+    docker:
+      - image: cimg/go:1.21
+    steps:
+      - run: echo "Preparing to run Go tests."
+      - when:
+          condition: << pipeline.parameters.run_go_test >>
+          # condition:
+          #   or:
+          #     - << pipeline.parameters.run_go_test >>
+          #     - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - checkout
+            # - run:
+            #     name: Install gcov2lcov
+            #     command: go install github.com/jandelgado/gcov2lcov@latest
+            - run:
+                name: Run Go tests
+                command: go test -timeout=30m -v -short ./...
+            # - run:
+            #     name: Convert Go coverage to lcov format
+            #     command: gcov2lcov -infile=coverage.out -outfile=coverage.lcov
+            # - coveralls/upload:
+            #     coverage_file: coverage.lcov
+            #     coverage_format: lcov
+            #     flag_name: "go-tests"
+                # parallel: true
+
+  python_test:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - run: echo "Preparing to run Py tests."
+      - when:
+          condition: << pipeline.parameters.run_py_test >>
+          # condition:
+          #   or:
+          #     - << pipeline.parameters.run_py_test >>
+          #     - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - checkout
+            - run:
+                name: Install Python dependencies
+                command: pip install -r python_code/requirements.txt
+            - run:
+                name: Run Python tests
+                command: pytest python_code/
+            # - coveralls/upload:
+            #     coverage_file: coverage.lcov
+            #     coverage_format: lcov
+            #     flag_name: "python-tests"
+                # parallel: true
+
+  # notify_coveralls_finished:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - coveralls/upload:
+  #         parallel_finished: true
+
+workflows:
+  go_ut:
+    when: << pipeline.parameters.run_go_test >>
+    jobs:
+      - go_test
+
+  py_ut:
+    when: << pipeline.parameters.run_py_test >>
+    jobs:
+      - python_test
