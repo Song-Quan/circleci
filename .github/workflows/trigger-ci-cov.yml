@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     # This job only runs if the label that was just added is exactly "run-ci-cov".
     if: github.event.label.name == 'run-ci-cov'
+    permissions:
+      pull-requests: write
     steps:
       - name: Trigger CircleCI Pipeline
         run: |
