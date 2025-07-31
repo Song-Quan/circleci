@@ -8,44 +8,36 @@ jobs:
     docker:
       - image: cimg/go:1.21
     steps:
-      - run: echo "Preparing to run Go tests."
-      - when:
-          condition: << pipeline.parameters.run_go_test >>
-          steps:
-            - checkout
-            - run:
-                name: Install gcov2lcov
-                command: go install github.com/jandelgado/gcov2lcov@latest
-            - run:
-                name: Run Go tests and generate coverage report
-                command: go test -v -cover -race -coverprofile=coverage.out ./...
-            - run:
-                name: Convert Go coverage to lcov format
-                command: gcov2lcov -infile=coverage.out -outfile=coverage.lcov
-            - coveralls/upload:
-                coverage_file: coverage.lcov
-                coverage_format: lcov
-                flag_name: "go-tests"
+      - checkout
+      - run:
+          name: Install gcov2lcov
+          command: go install github.com/jandelgado/gcov2lcov@latest
+      - run:
+          name: Run Go tests and generate coverage report
+          command: go test -v -cover -race -coverprofile=coverage.out ./...
+      - run:
+          name: Convert Go coverage to lcov format
+          command: gcov2lcov -infile=coverage.out -outfile=coverage.lcov
+      - coveralls/upload:
+          coverage_file: coverage.lcov
+          coverage_format: lcov
+          flag_name: "go-tests"
 
   python_test:
     docker:
       - image: cimg/python:3.11
     steps:
-      - run: echo "Preparing to run Py tests."
-      - when:
-          condition: << pipeline.parameters.run_py_test >>
-          steps:
-            - checkout
-            - run:
-                name: Install Python dependencies
-                command: pip install -r python_code/requirements.txt
-            - run:
-                name: Run Python tests and generate LCOV report
-                command: pytest --cov=python_code --cov-report=lcov:coverage.lcov python_code/
-            - coveralls/upload:
-                coverage_file: coverage.lcov
-                coverage_format: lcov
-                flag_name: "python-tests"
+      - checkout
+      - run:
+          name: Install Python dependencies
+          command: pip install -r python_code/requirements.txt
+      - run:
+          name: Run Python tests and generate LCOV report
+          command: pytest --cov=python_code --cov-report=lcov:coverage.lcov python_code/
+      - coveralls/upload:
+          coverage_file: coverage.lcov
+          coverage_format: lcov
+          flag_name: "python-tests"
 
 workflows:
   all_cov:
